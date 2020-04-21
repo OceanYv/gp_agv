@@ -1,0 +1,14 @@
+serial_congif:
+#串口通讯参数设置
+
+  SERIAL_STM: ttyUSB0
+  #与STM32通信的串口号
+
+  BAUD_STM: 115200
+  #与STM32通信的波特率
+
+  TIMEOUT: 1000
+  #串口通信超时时间
+  
+  RATE: 10
+  #通讯频率
