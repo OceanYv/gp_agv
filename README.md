@@ -29,11 +29,15 @@
 * __run_agv：系统初始化，并启动各个模块__  
     启动整个系统的指令为  
     ` $ roslaunch run_agv run_agv.launch`  
+    __要设置的参数__  
+	/config/fixed_tf.yaml中的参数:激光雷达安装位置信息  
 
 * __base_controller：用于基本的运动控制__  
     单独运行用以下指令  
-    ` $ roslaunch base_controller base_controller.launch`
-
+    ` $ roslaunch base_controller base_controller.launch`  
+    __要设置的参数__  
+	/config/base_controller.yaml中的参数:STM32串口通讯参数  
+	
 * __lslidar_n301：镭神官方提供的ROS开发包，用于读取N301激光雷达数据__  
     单独运行用以下指令  
     ` $ roslaunch lslidar_n301_decoder lslidar_n301.launch --screen`  
@@ -42,4 +46,11 @@
     即可在rviz中即可查看对应激光雷达数据  
 
 * __set_gmapping：使用了gmapping功能包，对一些参数进行设置__  
-    可以在set_mapping/launch/robot_gmapping.launch中对参数进行设定  
+    __要设置的参数__  
+	/launch/robot_gmapping.launch中的参数:gmapping参数  
+
+##其他说明
+*__硬件要求__  
+    在安装①网口通讯的激光雷达②RS232通讯的STM32 后方可正常运行；  
+    若在无上诉硬件时运行run_agv.launch，会报错；  
+    如果想要观察系统结构，请将/base_controller/src/base_controller.cpp中的51-74、124-149行注释掉，以免base_controller节点被kill；  

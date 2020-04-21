@@ -10,12 +10,10 @@
 #include <unistd.h>
 #include <math.h>
 #include <serial/serial.h>
+using std::string;
 
 //通信协议部分参数
 #define CMD_SPEEDSET 'm'        //速度设置指令
-
-
-using std::string;
 
 //串口数据收发变量
 string rec_buffer;

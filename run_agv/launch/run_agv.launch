@@ -19,6 +19,6 @@
 
     <include file="$(find base_controller)/launch/base_controller.launch"/>
     <include file="$(find lslidar_n301_decoder)/launch/lslidar_n301.launch"/>
-    <include file="$(find set_mapping)/launch/robot_gmapping.launch"/>
+    <include file="$(find set_gmapping)/launch/robot_gmapping.launch"/>
 
 </launch>
