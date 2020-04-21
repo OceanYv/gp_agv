@@ -1,0 +1,13 @@
+#单位是米
+#车前方为x正方向，左侧为y正方向
+map_odom_tf:
+
+  x: 0
+  y: 0
+  orie: 0
+
+base_laser_tf:
+
+  x: 0.2
+  y: 0
+  orie: 0

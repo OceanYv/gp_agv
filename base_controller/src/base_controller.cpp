@@ -49,13 +49,13 @@ void Callback(const geometry_msgs::Twist &cmd_input){
 int main(int argc, char *argv[]){
     ros::init(argc, argv, "base_controller");
     ros::NodeHandle nh;
+    
 //串口通信配置
     string serial_stm;
-    int baud_stm,timeout,rate;
+    int baud_stm,timeout;
     nh.param<std::string>("/serial_congif/SERIAL_STM",serial_stm,"ttyUSB0");
     nh.param("/serial_congif/BAUD_STM",baud_stm,115200);
     nh.param("/serial_congif/TIMEOUT",timeout,1000);
-    nh.param("/serial_congif/RATE",rate,10);
 
     serial::Timeout to = serial::Timeout::simpleTimeout(timeout);   //串口通信超时时间
     sp.setPort(serial_stm);
@@ -79,6 +79,7 @@ int main(int argc, char *argv[]){
     ros::Publisher odom_pub= nh.advertise<nav_msgs::Odometry>("odom", 10);   //发布里程计信息
     static tf::TransformBroadcaster odom_bc;    //发布tf_tree
 //定义变量
+    int rate;
     ros::Time now_stamp,last_stamp;             //时间帧，也用于计算速度位移
     ros::Duration dt_Duration;
     nav_msgs::Odometry odom_inf;                //里程计信息
@@ -99,10 +100,11 @@ int main(int argc, char *argv[]){
 //      odom_inf.pose.covariance[i] = covariance[i];
 
 //初始化变量
+    nh.param("/serial_congif/RATE",rate,10);
     odom_point.x=odom_point.y=odom_point.z=0;
     odom_point_tf.x=odom_point_tf.y=odom_point_tf.z=0;
-    odom_quat.x=odom_quat.y=odom_quat.z=odom_quat.w=0;
     orie=0;
+    odom_quat = tf::createQuaternionMsgFromYaw(orie);   ////偏航角转换成四元数*/
     vel_linear.x=vel_linear.y=vel_linear.z=0;
     vel_angular.x=vel_angular.y=vel_angular.z=0;
     last_stamp=now_stamp=ros::Time::now();

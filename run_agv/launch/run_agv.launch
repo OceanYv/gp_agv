@@ -1,0 +1,24 @@
+<!--这个文件是最老大的启动文件，干了三件事情：
+    1.载入初始化的参数和文件
+    2.启动了几个节点
+    3.include了几个其他launch文件，来启动其他的模块-->
+
+<launch>
+
+<!--从yaml文件载入参数-->
+
+    <!--固定零部件的tf转换信息文件-->
+    <rosparam command="load" file="$(find run_agv)/config/fixed_tf.yaml"/>    
+
+<!--启动几个node-->
+
+    <!--发布固定的tf信息-->
+    <node name="tf_build" pkg="run_agv" type="tf_build"/>
+
+<!--调用其他launch文件-->
+
+    <include file="$(find base_controller)/launch/base_controller.launch"/>
+    <include file="$(find lslidar_n301_decoder)/launch/lslidar_n301.launch"/>
+    <include file="$(find set_mapping)/launch/robot_gmapping.launch"/>
+
+</launch>
