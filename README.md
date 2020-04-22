@@ -45,9 +45,10 @@
     ` $ rosrun rviz rviz`  
     即可在rviz中即可查看对应激光雷达数据  
 
-* __set_gmapping：使用了gmapping功能包，对一些参数进行设置__  
+* __set_gmapping：调用gmapping功能包,并保存地图文件__  
     __要设置的参数__  
-	/launch/robot_gmapping.launch中的参数:gmapping参数  
+	/launch/robot_gmapping.launch中的参数:gmapping参数、save_map参数  
+    该launch文件中的file_location和mapname两个param一定要按照自己的位置来配置  
 
 ##其他说明
 *__硬件要求__  
