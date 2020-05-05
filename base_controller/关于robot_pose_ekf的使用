@@ -1,0 +1,4 @@
+关于robot_pose_ekf
+	*它融合了imu_data和odom（前者来自于imu，后者来自于编码器），并发布odom_combined；
+	*由于imu的协方差一般要远小于odom，所以orientation中的数据主要来自前者；
+	*但是角速度主要依赖odom的数据；

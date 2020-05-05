@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
     string mapname,file_location;
     int threshold_occupied,threshold_free,rate;
 
-    nh_sm.param("/save_map/rate",rate,65);
+    nh_sm.param("/save_map/rate",rate,1);
     nh_sm.param("/save_map/threshold_occupied",threshold_occupied,65);
     nh_sm.param("/save_map/threshold_free",threshold_free,25);
     nh_sm.param<string>("/save_map/mapname",mapname,"map");

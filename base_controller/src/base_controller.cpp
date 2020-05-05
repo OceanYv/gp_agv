@@ -13,35 +13,55 @@
 using std::string;
 
 //通信协议部分参数
-#define CMD_SPEEDSET 'm'        //速度设置指令
+#define CMD_SPEEDSET 0x01        //速度控制指令
+#define CMD_ODOMREQUEST 0x02        //请求下位机数据指令
+#define ODOMREQ_COUNT 5            //反复请求里程计数据最大次数
 
 //串口数据收发变量
+int odomreq_count;		//当超过ODOMREQ_COUNT时，即说明多次从下位机得到的数据都有问题，产生报错
 string rec_buffer;
-unsigned char send_buffer[10]={0};
+const char *receive_data;
+unsigned char send_buffer[11]={0};
 serial::Serial sp;              //Serial对象
 
-//实现char数组和float之间的转换
-union floatData {
-    float d;
-    unsigned char data[4];
-}vel_linear_set,vel_angular_set,vel_linear_meas,vel_angular_meas;
-//设定线速度      设定角速度       测定线速度        测定角速度,单位m，s
+//实现char数组和short之间的转换
+union shortData {
+    int16_t d;
+    unsigned char data[2];
+}x_sum_meas,y_sum_meas,r_sum_meas;
+//测定线速度        测定角速度
 
-//回调函数，获取线速度、角速度，单位为m，s
+//回调函数，发送线速度、角速度
 void Callback(const geometry_msgs::Twist &cmd_input){
-    
+    char vel_linear_set,vel_angular_set;
     //获取速度
-    vel_linear_set.d = cmd_input.linear.x;
-    vel_angular_set.d = cmd_input.angular.z;
-    //配置串口命令
-    send_buffer[0] = CMD_SPEEDSET;
-    for(int i=0;i<4;i++){    
-        send_buffer[i+1]=vel_linear_set.data[i];
-        send_buffer[i+5]=vel_angular_set.data[i];
-    }
-    send_buffer[9] = 0x0d;      // \n作为结束符
+    vel_linear_set = (char)(cmd_input.linear.x/10);             //单位mm/s转化为cm/s
+    vel_angular_set = (char)(cmd_input.angular.z*57.29578);     //单位rad/s转化为°/s
+    //配置速度控制指令串口命令
+    send_buffer[0] = 0xFE;
+    send_buffer[1] = 0xEE;
+    send_buffer[2] = 0x04;              //长度
+    send_buffer[3] = CMD_SPEEDSET;      //命令类型
+    send_buffer[4] = vel_linear_set;    //x方向线速度
+    send_buffer[5] = 0x00;              //y方向线速度
+    send_buffer[6] = vel_angular_set;   //角速度
+    send_buffer[9] = 0xFC;
+    send_buffer[10] = 0xFF;
     //串口发送
-    sp.write(send_buffer,10);
+    sp.write(send_buffer,11);
+}
+
+//向下位机请求里程计数据
+void Odom_request(void){
+    send_buffer[0] = 0xFE;
+    send_buffer[1] = 0xEE;
+    send_buffer[2] = 0x01;              //长度
+    send_buffer[3] = CMD_ODOMREQUEST;      //命令类型
+    send_buffer[6] = 0xFC;
+    send_buffer[7] = 0xFF;
+//串口发送
+    sp.write(send_buffer,8);
+    odomreq_count++;
 }
 
 int main(int argc, char *argv[]){
@@ -60,24 +80,22 @@ int main(int argc, char *argv[]){
     sp.setBaudrate(baud_stm);
     sp.setTimeout(to);
 //打开串口
-    try{
-        sp.open();
-    }
+    try{sp.open();}
     catch(serial::IOException& e){
         ROS_ERROR_STREAM("Unable to open port.");
         return -1;
     }
-    
     if(sp.isOpen())
         ROS_INFO_STREAM("Serial is opened.");
     else
         return -1;
 //定义发布、接收
     ros::Subscriber sub = nh.subscribe("cmd_vel",10, Callback);
-    ros::Publisher odom_pub= nh.advertise<nav_msgs::Odometry>("odom", 10);   //发布里程计信息
+    ros::Publisher odom_pub= nh.advertise<nav_msgs::Odometry>("odom_data", 10);   //发布里程计信息
     static tf::TransformBroadcaster odom_bc;    //发布tf_tree
 //定义变量
     int rate;
+    double pos_temp[3];
     ros::Time now_stamp,last_stamp;             //时间帧，也用于计算速度位移
     ros::Duration dt_Duration;
     nav_msgs::Odometry odom_inf;                //里程计信息
@@ -98,6 +116,8 @@ int main(int argc, char *argv[]){
 //      odom_inf.pose.covariance[i] = covariance[i];
 
 //初始化变量
+    odomreq_count=0;
+    pos_temp[0]=pos_temp[1]=pos_temp[2]=0;
     nh.param("/serial_congif/RATE",rate,10);
     odom_point.x=odom_point.y=odom_point.z=0;
     odom_point_tf.x=odom_point_tf.y=odom_point_tf.z=0;
@@ -108,65 +128,64 @@ int main(int argc, char *argv[]){
     last_stamp=now_stamp=ros::Time::now();
 
     ros::Rate loop_rate(rate);
+    while(ros::ok()){           //处理串口信息，计算并发布tf转换、odom_inf
+        //请求下位机数据，并读取串口数据
+        Odom_request();
+        rec_buffer =sp.readline(17,"\n");    //获取串口发送来的数据
+        receive_data=rec_buffer.data(); //保存串口发送来的数据
 
-//处理串口信息，计算并发布tf转换、odom_inf
-    while(ros::ok()){        
+        if(receive_data[0]==0xFE && receive_data[1]==0xEE && receive_data[15]==0xFC && receive_data[16]==0xFF){ //校验
+            odomreq_count=0;
+            if(receive_data[3]==0x00){      //编码器里程反馈
+            //计算时间间隔并转化为秒
+                now_stamp=ros::Time::now();
+                dt_Duration=now_stamp-last_stamp;
+                last_stamp=now_stamp;
+                double dt=dt_Duration.toSec(); 
 
-//这边应该加一个向STM32请求里程计数据的指令，然后再接收数据，这样计时会更加准确
-//这边应该加一个向STM32请求里程计数据的指令，然后再接收数据，这样计时会更加准确
-//这边应该加一个向STM32请求里程计数据的指令，然后再接收数据，这样计时会更加准确
-
-    //计算时间间隔并转化为秒
-        double dt=dt_Duration.toSec(); 
-        now_stamp=ros::Time::now();
-        dt_Duration=now_stamp-last_stamp;
-        last_stamp=now_stamp;
-    //读取串口数据，格式：‘指令符’+测定线速度+测定角速度+‘终止符’（10字节）,单位m，s
-        rec_buffer =sp.readline(10,"\n");    //获取串口发送来的数据
-        const char *receive_data=rec_buffer.data(); //保存串口发送来的数据
-        for(int i=0;i<4;i++){
-            vel_linear_meas.data[i]=receive_data[i+1];
-            vel_angular_meas.data[i]=receive_data[i+5];
+                for(int i=0;i<2;i++){
+                    x_sum_meas.data[i]=receive_data[i+4];
+                    y_sum_meas.data[i]=receive_data[i+6];
+                    r_sum_meas.data[i]=receive_data[i+8];
+                }
+                pos_temp[0]=((double)x_sum_meas.d)/100;     //x方向位置,mm
+                pos_temp[1]=((double)y_sum_meas.d)/100;     //y方向位置,mm
+                pos_temp[2]=((double)r_sum_meas.d)/5729.578;     //方向,弧度
+                //更新绝对速度
+                vel_linear.x=(pos_temp[0]-odom_point.x)/dt;
+                vel_linear.y=(pos_temp[1]-odom_point.y)/dt;
+                vel_angular.z=(pos_temp[2]-orie)/dt;
+                //更新全局位姿态
+                odom_point_tf.x=odom_point.x=pos_temp[0];
+                odom_point_tf.y=odom_point.y=pos_temp[1];
+                orie=pos_temp[2];
+                odom_quat = tf::createQuaternionMsgFromYaw(orie);   //偏航角转换成四元数
+/*          调用robot_pose_ekf来发布这个tf变换，所以把这几行注释掉了  
+            //发布tf坐标变化
+                odom_tf.header.stamp = now_stamp;
+                odom_tf.header.frame_id = "odom";
+                odom_tf.child_frame_id = "base_footprint";
+                odom_tf.transform.translation = odom_point_tf;
+                odom_tf.transform.rotation = odom_quat;        
+                odom_bc.sendTransform(odom_tf);   */ 
+            //发布里程计信息
+                odom_inf.header.stamp = now_stamp; 
+                odom_inf.header.frame_id = "odom";
+                odom_inf.child_frame_id = "base_footprint";
+                odom_inf.pose.pose.position= odom_point;
+                odom_inf.pose.pose.orientation = odom_quat;       
+                odom_inf.twist.twist.linear = vel_linear;
+                odom_inf.twist.twist.angular = vel_angular;
+                odom_pub.publish(odom_inf);
+            }       
         }
-    //相对速度
-        double d_linear_meas=vel_linear_meas.d*dt;      //相对位移
-        double d_angular_meas=vel_angular_meas.d*dt;    //相对转角
-    //更新绝对速度
-        vel_linear.x=vel_linear_meas.d*cos(orie);
-        vel_linear.y=vel_linear_meas.d*sin(orie);
-        vel_angular.z=vel_angular_meas.d;
-    //更新全局位姿
-        if (d_linear_meas != 0){
-            double dx = cos(d_angular_meas) * d_linear_meas;
-            double dy = -sin(d_angular_meas) * d_linear_meas;
-            odom_point.x += (cos(orie) * dx - sin(orie) * dy);
-            odom_point.y += (sin(orie) * dx + cos(orie) * dy);
+        else{
+            if(odomreq_count>=ODOMREQ_COUNT)
+                ROS_ERROR_STREAM("Fail to request odom data from STM32.");
+            else
+                Odom_request();
         }
-        if (vel_angular_meas.d != 0)
-            orie += vel_angular_meas.d;
-        odom_point_tf.y=odom_point.y;
-        odom_point_tf.y=odom_point.y;
-		odom_quat = tf::createQuaternionMsgFromYaw(orie);   ////偏航角转换成四元数
-
-    //发布tf坐标变化
-        odom_tf.header.stamp = now_stamp;
-        odom_tf.header.frame_id = "odom";
-        odom_tf.child_frame_id = "base_footprint";
-        odom_tf.transform.translation = odom_point_tf;
-        odom_tf.transform.rotation = odom_quat;        
-        odom_bc.sendTransform(odom_tf);    
-        
-    //发布里程计信息
-        odom_inf.header.stamp = now_stamp; 
-        odom_inf.header.frame_id = "odom";
-        odom_inf.child_frame_id = "base_footprint";
-        odom_inf.pose.pose.position= odom_point;
-        odom_inf.pose.pose.orientation = odom_quat;       
-        odom_inf.twist.twist.linear = vel_linear;
-        odom_inf.twist.twist.angular = vel_angular;
-        odom_pub.publish(odom_inf);
-
-        ros::spinOnce();
+        ros::spinOnce();    //每次循环调用一次回调函数，向下位机发送指定速度
         loop_rate.sleep();
     }
     return 0;

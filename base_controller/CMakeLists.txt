@@ -220,3 +220,19 @@ add_dependencies(base_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 target_link_libraries(base_controller
   ${catkin_LIBRARIES}
 )
+
+add_executable(imu_get
+  src/imu_get.cpp
+)
+add_dependencies(imu_get ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(imu_get
+  ${catkin_LIBRARIES}
+)
+
+add_executable(pub_odom
+  src/pub_odom.cpp
+)
+add_dependencies(pub_odom ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pub_odom
+  ${catkin_LIBRARIES}
+)
