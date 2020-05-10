@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="hwtimu" type="hwtimu" name="hwtimu_node" output="screen">
+    <rosparam file="$(find hwtimu)/cfg/hwtcfg.yaml" command="load" />
+    <param name="com_file" value="$(find hwtimu)/cfg/com.cfg"/>
+  </node>
+<!--  	<node pkg="hwtimu" type="hwtimuSubExample" name="hwtimuSubExample" output="screen">
+    <rosparam file="$(find hwtimu)/cfg/hwtsubcfg.yaml" command="load" />
+  </node>-->
+</launch>

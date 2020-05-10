@@ -1,0 +1,17 @@
+com_name: "/dev/ttyUSB0"
+baud_rate: 115200
+data_bits: 8
+#0,none 1,奇校验 2,偶校验
+parity: 0
+stop_bits: 1
+#55:hwt,11*5(accl,gyro,magn,angl,qutn)
+#67:ADIS(6DOF)
+mini_data: 67
+
+frame_id: "imu_link"
+burst_mode: false
+loop_rate: 200.0
+imu_topic: "imu/data_raw"
+#0:hwt,1:ADIS
+kind_of_imu: 1
+is_debug: false

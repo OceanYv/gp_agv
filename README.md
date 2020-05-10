@@ -59,6 +59,12 @@
 	/launch/robot_gmapping.launch中的参数:gmapping参数、save_map参数  
     该launch文件中的file_location和mapname两个param一定要按照自己的位置来配置  
 
+* __hwtimu:imu提供的包，用于通过串口连接imu并发布imu数据topic__  
+    单独运行用以下指令  
+    ` $ roslaunch hwtimu hwtimusubexp.launch`  
+    __要设置的参数__  
+	/cfg下yaml文件中的参数  
+
 ##其他说明
 *__硬件要求__  
     在安装①网口通讯的激光雷达②RS232通讯的STM32 后方可正常运行；  
