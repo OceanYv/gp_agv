@@ -69,4 +69,4 @@
 *__硬件要求__  
     在安装①网口通讯的激光雷达②RS232通讯的STM32 后方可正常运行；  
     若在无上诉硬件时运行run_agv.launch，会报错；  
-    如果想要观察系统结构，请将/base_controller/src/base_controller.cpp中的71-91、133-135\182-187行注释掉，以免base_controller节点被kill；  
+    如果想要观察系统结构，请将/base_controller/src/base_controller.cpp中的71-91、133-135\182-187行注释掉，以免base_controller节点被kill；
