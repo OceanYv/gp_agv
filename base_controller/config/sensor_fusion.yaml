@@ -1,0 +1,4 @@
+sensor_fusion:
+  odom_used: true
+  imu_used: true
+  sensor_timeout: 1.0

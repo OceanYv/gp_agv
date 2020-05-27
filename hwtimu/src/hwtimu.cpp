@@ -91,17 +91,17 @@ int Hwtimu::publish_imu_data()
     data.header.frame_id = frame_id_;
     data.header.stamp = ros::Time::now();
 
-    // Linear acceleration
+    // Linear acceleration（线加速度m/s^2）
     data.linear_acceleration.x = accl[0];
     data.linear_acceleration.y = accl[1];
     data.linear_acceleration.z = accl[2];
 
-    // Angular velocity (rotatianal velocity)
+    // Angular velocity (rotatianal velocity)（rad/sec）
     data.angular_velocity.x = gyro[0];
     data.angular_velocity.y = gyro[1];
     data.angular_velocity.z = gyro[2];
 
-    // Orientation
+    // Orientation（角度，rad）
     data.orientation.x = orten[1];//q1
     data.orientation.y = orten[2];//q2
     data.orientation.z = orten[3];//q3

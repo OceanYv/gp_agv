@@ -1,6 +1,6 @@
 /*
  *在机器人启动阶段调用
- *发布map-odom、base-laser等固定的tf信息
+ *发布map-odom、base-laser、base-imu等固定的tf信息
  *需要调用参数服务器中的数据
  */
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     nh_run.param("fixed_tf/map_odom_tf/x",info_point_tf.x,0.0);
     nh_run.param("fixed_tf/map_odom_tf/y",info_point_tf.y,0.0);
     nh_run.param("fixed_tf/map_odom_tf/orie",orie,0.0);
-    info_quat = tf::createQuaternionMsgFromYaw(orie);   ////偏航角转换成四元数
+    info_quat = tf::createQuaternionMsgFromYaw(orie);   //偏航角转换成四元数
     //发布tf坐标变化
     info_tf.header.stamp = now_stamp;
     info_tf.header.frame_id = "map";
@@ -48,11 +48,24 @@ int main(int argc, char *argv[])
         nh_run.param("fixed_tf/base_laser_tf/x",info_point_tf.x,0.0);
         nh_run.param("fixed_tf/base_laser_tf/y",info_point_tf.y,0.0);
         nh_run.param("fixed_tf/base_laser_tf/orie",orie,0.0);
-        info_quat = tf::createQuaternionMsgFromYaw(orie);   ////偏航角转换成四元数
+        info_quat = tf::createQuaternionMsgFromYaw(orie);   //偏航角转换成四元数
 
         //发布tf坐标变化
         info_tf.header.frame_id = "base_footprint";
         info_tf.child_frame_id = "laser";
+        info_tf.transform.translation = info_point_tf;
+        info_tf.transform.rotation = info_quat;        
+        tf_bc.sendTransform(info_tf);  
+
+    //base-imu
+        nh_run.param("fixed_tf/base_imu_tf/x",info_point_tf.x,0.0);
+        nh_run.param("fixed_tf/base_imu_tf/y",info_point_tf.y,0.0);
+        nh_run.param("fixed_tf/base_imu_tf/orie",orie,0.0);
+        info_quat = tf::createQuaternionMsgFromYaw(orie);   //偏航角转换成四元数
+
+        //发布tf坐标变化
+        info_tf.header.frame_id = "base_footprint";
+        info_tf.child_frame_id = "imu";
         info_tf.transform.translation = info_point_tf;
         info_tf.transform.rotation = info_quat;        
         tf_bc.sendTransform(info_tf);  

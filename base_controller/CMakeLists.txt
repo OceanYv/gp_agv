@@ -10,7 +10,7 @@ project(base_controller)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy tf std_msgs serial geometry_msgs nav_msgs sensor_msgs message_generation)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+ find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -45,6 +45,11 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   message_generation
 )
+find_package(Boost REQUIRED COMPONENTS thread)
+find_package(cmake_modules REQUIRED)
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+add_definitions( ${EIGEN_DEFINITIONS})
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
 ##   * uncomment the add_*_files sections below as needed
@@ -62,8 +67,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
-#   Service1.srv
-#   Service2.srv
 # )
 
 ## Generate actions in the 'action' folder
@@ -74,10 +77,9 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+#generate_messages(DEPENDENCIES
+#  std_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -109,10 +111,15 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  CATKIN_DEPENDS
+  message_runtime
 #  INCLUDE_DIRS include
 #  LIBRARIES base_controller
 #  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+          nav_msgs
+        roscpp
+        sensor_msgs
+        std_msgs
 )
 
 ###########
@@ -122,10 +129,10 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include ${catkin_INCLUDE_DIRS}
-# include
-# ${catkin_INCLUDE_DIRS}
-)
+    "include"
+    ${catkin_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -213,6 +220,7 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
+
 add_executable(base_controller
   src/base_controller.cpp
 )
@@ -221,18 +229,29 @@ target_link_libraries(base_controller
   ${catkin_LIBRARIES}
 )
 
-add_executable(imu_get
-  src/imu_get.cpp
+add_library(localEKF
+  include/base_controller/localEKF.h
+  src/localEKF.cpp
 )
-add_dependencies(imu_get ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(imu_get
+add_dependencies(localEKF ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(localEKF
   ${catkin_LIBRARIES}
 )
 
-add_executable(pub_odom
-  src/pub_odom.cpp
+add_library(Sensorfusion
+  include/base_controller/Sensorfusion.h
+  src/Sensorfusion.cpp
 )
-add_dependencies(pub_odom ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(pub_odom
+add_dependencies(Sensorfusion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(Sensorfusion localEKF
+  ${catkin_LIBRARIES}
+)
+
+
+add_executable(sensor_fusion
+  src/sensor_fusion.cpp
+)
+add_dependencies(sensor_fusion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(sensor_fusion Sensorfusion
   ${catkin_LIBRARIES}
 )

@@ -86,8 +86,8 @@ int main(int argc, char *argv[]){
         return -1;
     }
     if(sp.isOpen())
-        ROS_INFO_STREAM("Serial is opened.");
-    else
+        ROS_WARN_STREAM("Serial is opened.");
+    else 
         return -1;
 //定义发布、接收
     ros::Subscriber sub = nh.subscribe("cmd_vel",10, Callback);
@@ -105,15 +105,15 @@ int main(int argc, char *argv[]){
     double orie;                                //航偏角
     geometry_msgs::Quaternion odom_quat;        //姿态信息（四元数）
     geometry_msgs::Vector3 vel_linear,vel_angular;    //线速度、角速度
-//  float covariance[36] = {0.01,   0,  0,  0,  0,  0,  //位置和速度的测量不确定性协方差矩阵
-//                          0,  0.01,   0,  0,  0,  0,
-//                          0,  0,  99999,  0,  0,  0,
-//                          0,  0,  0,  99999,  0,  0,
-//                          0,  0,  0,  0,  99999,  0,
-//                          0,  0,  0,  0,  0,  0.01};
-//  for(int i = 0; i < 36; i++)
-//      odom_tf.pose.covariance[i] = covariance[i];
-//      odom_inf.pose.covariance[i] = covariance[i];
+    float covariance[36] = {0.01,   0,  0,  0,  0,  0,  //位置和速度的测量不确定性协方差矩阵
+                            0,  0.01,   0,  0,  0,  0,
+                            0,  0,  99999,  0,  0,  0,
+                            0,  0,  0,  99999,  0,  0,
+                            0,  0,  0,  0,  99999,  0,
+                            0,  0,  0,  0,  0,  0.01};
+    for(int i = 0; i < 36; i++){
+        odom_inf.pose.covariance[i] = covariance[i];
+    }
 
 //初始化变量
     odomreq_count=0;
@@ -160,9 +160,9 @@ int main(int argc, char *argv[]){
                 odom_point_tf.y=odom_point.y=pos_temp[1];
                 orie=pos_temp[2];
                 odom_quat = tf::createQuaternionMsgFromYaw(orie);   //偏航角转换成四元数
-/*          调用robot_pose_ekf来发布这个tf变换，所以把这几行注释掉了  
+/*          现在要用自己写的数据融合程序来发布这个tf变换，所以把这几行注释掉了  
             //发布tf坐标变化
-                odom_tf.header.stamp = now_stamp;
+                odom_tf.header.stamp = now_stamp; 
                 odom_tf.header.frame_id = "odom";
                 odom_tf.child_frame_id = "base_footprint";
                 odom_tf.transform.translation = odom_point_tf;
@@ -170,8 +170,8 @@ int main(int argc, char *argv[]){
                 odom_bc.sendTransform(odom_tf);   */ 
             //发布里程计信息
                 odom_inf.header.stamp = now_stamp; 
-                odom_inf.header.frame_id = "odom";
-                odom_inf.child_frame_id = "base_footprint";
+                odom_inf.header.frame_id = "odom";  //位置是在odom坐标系下的
+                odom_inf.child_frame_id = "odom"; //速度是在odom坐标系下的
                 odom_inf.pose.pose.position= odom_point;
                 odom_inf.pose.pose.orientation = odom_quat;       
                 odom_inf.twist.twist.linear = vel_linear;

@@ -7,7 +7,7 @@
 * __下载__  
     建立一个含src子文件夹的文件夹  
     ` $ mkdir 自定义路径/自定义工作空间名/src`  
-    将src设为工作路径  
+    将src设为工作路径   
     ` $ cd 自定义路径/自定义工作空间名/src`  
     拉取代码  
     ` $ git clone git@github.com:OceanYv/gp_agv.git`  
@@ -69,4 +69,12 @@
 *__硬件要求__  
     在安装①网口通讯的激光雷达②RS232通讯的STM32 后方可正常运行；  
     若在无上诉硬件时运行run_agv.launch，会报错；  
-    如果想要观察系统结构，请将/base_controller/src/base_controller.cpp中的71-91、133-135\182-187行注释掉，以免base_controller节点被kill；
+    如果想要观察系统结构，请将/base_controller/src/base_controller.cpp中的71-91、133-135\182-187行注释掉，以免base_controller节点被kill；  
+
+*__一些基本指令__  
+  查看tf tree  
+  ` $  rosrun rqt_tf_tree rqt_tf_tree`  
+  查看系统结构
+  ` $ rqt_graph `  
+  查看参数服务器  
+  ` $ rosparam list `  
