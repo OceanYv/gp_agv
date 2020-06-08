@@ -1,6 +1,0 @@
-<launch>
-
-    <rosparam command="load" file="$(find base_controller)/config/base_controller.yaml"/>
-    <node name="base_controller" pkg="base_controller" type="base_controller" output="screen"/>
-
-</launch>

@@ -43,9 +43,6 @@
 	/launch/include/kenzhrobot_pose_ekf.launch.xml中的参数：有注释的三行  
     __文件说明__  
     base_controller.cpp:获取速度指令后通过串口向下位机发送速度指令，并并定时读取下位机的里程计数据；  
-    imu_get.cpp:获取imu数据，并以imu_data类型topic发布；  
-    robot_pose_ekf.launch.xml:启动robot_pose_ekf节点，融合imu与里程计数据；
-    pub_odom.cpp:将robot_pose_ekf融合获得的位置数据转化为odom并发布；
 
 * __lslidar_n301：镭神官方提供的ROS开发包，用于读取N301激光雷达数据__  
     单独运行用以下指令  
@@ -56,7 +53,7 @@
 
 * __set_gmapping：调用gmapping功能包,并保存地图文件__  
     __要设置的参数__  
-	/launch/robot_gmapping.launch中的参数:gmapping参数、save_map参数  
+	/launch/robot_gmapping.launch中的参数:gma pping参数、save_map参数  
     该launch文件中的file_location和mapname两个param一定要按照自己的位置来配置  
 
 * __hwtimu:imu提供的包，用于通过串口连接imu并发布imu数据topic__  
@@ -64,6 +61,10 @@
     ` $ roslaunch hwtimu hwtimusubexp.launch`  
     __要设置的参数__  
 	/cfg下yaml文件中的参数  
+
+* __joy_control、:遥控器使用和驱动，通过无线通讯控制底盘的运动，发布vel_cmd话题__
+    单独运行用以下指令  
+    ` $ roslaunch joy_control we_joy_control.launch`  
 
 ##其他说明
 *__硬件要求__  
@@ -78,3 +79,24 @@
   ` $ rqt_graph `  
   查看参数服务器  
   ` $ rosparam list `  
+
+
+  2020.6.1程序调试  
+    roscore  
+    rqt_graph  
+    rosrun rqt_tf_tree rqt_tf_tree  
+    `打开遥控器和运动控制节点，进行运动控制的测试`  
+    roslaunch joy_control we_joy_control.launch		//打开遥控器  
+    roslaunch base_controller base_controller.launch	//打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息  
+    `发布激光雷达安装位置，运行激光雷达数据获取程序以及gmapping程序`  
+    roslaunch run_agv run_agv.launch				//发布激光雷达、IMU的安装位置
+        设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1
+        可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态
+    roslaunch lslidar_n301_decoder lslidar_n301.launch --screen	//开始获取激光雷达数据  
+    roslaunch hwtimu hwtimusubexp.launch		//开始获取IMU数据  
+    roslaunch set_gmapping robot_gmapping.launch	//通过gmapping进行建图  
+    `打开rviz，查看激光雷达的数据，以及建图的结果`  
+    rosrun rviz rviz  					//通过rviz查看激光雷达的数据  
+    roslaunch set_gmapping save_map_my.launch  		//保存地图  
+    `运行move_base，进行导航`  
+    roslaunch set_gmapping move_base.launch  		//

@@ -29,14 +29,19 @@ class MapGenerator
                map->info.height,
                map->info.resolution);
 
-      string mapdatafile = mapname_ + ".pgm";
+      //string mapdatafile = mapname_ + ".pgm";
+      string mapdatafile = "\\home\\map_f\\map.pgm";
       string mapdata_location_name = file_location_ + mapname_ + ".pgm";
-      ROS_INFO("save_map:Writing map occupancy data to %s", mapdatafile.c_str());
-      FILE* out = fopen(mapdata_location_name.c_str(), "w");	//只写方式打开文件
+      //ROS_INFO("save_map:Writing map occupancy data to %s", mapdatafile.c_str());
+      //ROS_INFO("The name and location of the map is: %s",mapdata_location_name.c_str());
+      FILE* out = fopen(mapdatafile.c_str(), "w");	//只写方式打开文件
       if (!out)
       {
         ROS_ERROR("save_map:Couldn't save map file to %s", mapdatafile.c_str());
         return;
+      }
+      else{
+        ROS_INFO("opened the file %s", mapdatafile.c_str());
       }
 
       fprintf(out, "P5\n# CREATOR: map_saver.cpp %.3f m/pix\n%d %d\n255\n",
@@ -59,7 +64,7 @@ class MapGenerator
       string mapmetadatafile = mapname_ + ".yaml";
       string mapmeta_location_name = file_location_ + mapname_ + ".yaml";
       ROS_INFO("save_map:Writing map occupancy data to %s", mapmetadatafile.c_str());
-      FILE* yaml = fopen(mapmeta_location_name.c_str(), "w");
+      FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
 
 
       /*

@@ -50,13 +50,4 @@
     <remap from="scan" to="$(arg scan_topic)"/>
   </node>
 
-  <!--用于保存地图的节点-->
-  <node pkg="set_gmapping" type="save_map" name="save_map" output="screen">
-    <param name="threshold_occupied" value="65"/>   <!--大于等于此值的栅格为占用-->
-    <param name="threshold_free" value="25"/>       <!--小于等于此值的栅格为空闲，须有关系0 <= threshold_free < threshold_occupied < 255-->
-    <param name="mapname" value="map"/>             <!--地图名称-->
-    <param name="file_location" value="~/ROSCODE/AGV/src/gp_agv/set_gmapping/maps"/>  <!--地图保存位置-->
-    <param name="rate" value="1"/>                  <!--地图文件更新频率-->
-  </node>
-
 </launch>

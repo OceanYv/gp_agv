@@ -3,7 +3,6 @@ project(lslidar_n301_driver)
 
 add_definitions(-std=c++0x)
 
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   diagnostic_updater
@@ -20,8 +19,8 @@ catkin_package(
   CATKIN_DEPENDS
     roscpp diagnostic_updater nodelet
     lslidar_n301_msgs
-  DEPENDS
-    boost
+#  DEPENDS
+#    boost
 )
 
 include_directories(
@@ -69,4 +68,3 @@ install(TARGETS lslidar_n301_driver_node
 install(DIRECTORY launch
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-

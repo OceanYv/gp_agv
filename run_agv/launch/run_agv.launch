@@ -3,23 +3,17 @@
     2.启动了几个节点
     3.include了几个其他launch文件，来启动其他的模块-->
 
-<launch>
+<launch>  
 
-<!--从yaml文件载入参数-->
-
-    <!--固定零部件的tf转换信息文件-->
-    <rosparam command="load" file="$(find run_agv)/config/fixed_tf.yaml"/>    
-
-<!--启动几个node-->
-
-    <!--发布固定的tf信息-->
-    <node name="tf_build" pkg="run_agv" type="tf_build"/>
+<!--发布固定坐标转换-->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.24 0 0 0 0 0 base_footprint laser_link 100"/>          <!--频率为10Hz-->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_imu" args="0.1 0 0 0 0 0 base_footprint imu 100"/>
 
 <!--调用其他launch文件-->
-
-    <include file="$(find base_controller)/launch/base_controller.launch"/>
+<!--    <include file="$(find base_controller)/launch/base_controller.launch"/>
     <include file="$(find lslidar_n301_decoder)/launch/lslidar_n301.launch"/>
     <include file="$(find set_gmapping)/launch/robot_gmapping.launch"/>
 	<include file="$(find hwtimu)/launch/hwtimusubexp.launch"/>
+    <include file="$(find set_gmapping)/launch/move_base.launch"/>-->
 
 </launch>
