@@ -65,6 +65,7 @@
 * __joy_control、:遥控器使用和驱动，通过无线通讯控制底盘的运动，发布vel_cmd话题__
     单独运行用以下指令  
     ` $ roslaunch joy_control we_joy_control.launch`  
+    以上包在使用之前要安装joy包，还要依赖dg_common包
 
 ##其他说明
 *__硬件要求__  
@@ -89,9 +90,9 @@
     roslaunch joy_control we_joy_control.launch		//打开遥控器  
     roslaunch base_controller base_controller.launch	//打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息  
     `发布激光雷达安装位置，运行激光雷达数据获取程序以及gmapping程序`  
-    roslaunch run_agv run_agv.launch				//发布激光雷达、IMU的安装位置
-        设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1
-        可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态
+    roslaunch run_agv run_agv.launch				//发布激光雷达、IMU的安装位置  
+        设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1  
+        可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态  
     roslaunch lslidar_n301_decoder lslidar_n301.launch --screen	//开始获取激光雷达数据  
     roslaunch hwtimu hwtimusubexp.launch		//开始获取IMU数据  
     roslaunch set_gmapping robot_gmapping.launch	//通过gmapping进行建图  
@@ -99,4 +100,11 @@
     rosrun rviz rviz  					//通过rviz查看激光雷达的数据  
     roslaunch set_gmapping save_map_my.launch  		//保存地图  
     `运行move_base，进行导航`  
-    roslaunch set_gmapping move_base.launch  		//
+    roslaunch set_gmapping move_base.launch  
+  
+现在存在的问题:  
+	① 上位机与下位机的串口通信与通信协议有些问题，目前认为是下位机程序的问题  
+	② 激光雷达数据获取之后，在RVIZ中可视化时会出现tf有关的问题  
+	③ 数据融合的算法中存在一些明显的逻辑错误  
+	④move_base的配置还没有完成  
+	⑤save_map节点还存在一些问题  
