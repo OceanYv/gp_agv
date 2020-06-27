@@ -48,8 +48,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 find_package(cmake_modules REQUIRED)
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(
+  include ${catkin_INCLUDE_DIRS}${EIGEN3_INCLUDE_DIR})
 add_definitions( ${EIGEN_DEFINITIONS})
+include_directories("/usr/include/eigen3")
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
 ##   * uncomment the add_*_files sections below as needed

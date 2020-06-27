@@ -1,0 +1,11 @@
+<launch>  
+    <include file="$(find run_agv)/launch/build_tree.launch"/>                      <!--发布激光雷达、IMU的安装位置-->
+    <include file="$(find joy_control)/launch/we_joy_control.launch"/>              <!--打开遥控器-->
+    <include file="$(find base_controller)/launch/base_controller.launch"/>         <!--打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息-->
+    <include file="$(find lslidar_n301_decoder)/launch/lslidar_n301.launch"/>       <!--打开激光雷达数据接收节点-->
+    <!--<include file="$(find hwtimu)/launch/hwtimusubexp.launch"/>-->              <!--打开IMU据接收节点-->
+    <include file="$(find set_gmapping)/launch/robot_gmapping.launch"/>             <!--开启SLAM节点-->
+    <include file="$(find run_agv)/launch/rviz_slam.launch"/>                       <!--打开可视化-->
+    <rosparam command="load" file="$(find set_gmapping)/config/save_map.yaml"/>     <!--载入地图保存参数-->
+
+</launch>

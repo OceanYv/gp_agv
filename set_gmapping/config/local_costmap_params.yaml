@@ -1,0 +1,21 @@
+local_costmap:
+   global_frame: /map
+   robot_base_frame: /base_footprint
+
+   update_frequency: 5.0
+   publish_frequency: 2.0
+   transform_tolerance: 0.5
+
+   static_map: false
+   rolling_window: true
+   always_send_full_costmap: false  #若false，则每次只发布有改变的区域，默认false
+
+   width: 4.0
+   height: 4.0
+   resolution: 0.05
+   origin_x: 5.0
+   origin_y: 0
+   
+   plugins:
+    - {name: obstacles,      type: "costmap_2d::VoxelLayer"}
+    - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}

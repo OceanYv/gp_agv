@@ -1,0 +1,4 @@
+<launch>  
+    <!--<node pkg="rviz" type="rviz" name="rviz_navi" args="-d $(find run_agv)/config/slam_rviz_config.rviz"/>-->
+    <node pkg="rviz" type="rviz" name="rviz_navi"/>
+</launch>

@@ -2,18 +2,19 @@ serial_congif:
 #串口通讯参数设置
 
   SERIAL_STM: /dev/ttyS4
+  #SERIAL_STM: /dev/ttyUSB0
   #与STM32通信的串口号
 
   BAUD_STM: 9600
   #与STM32通信的波特率
 
-  TIMEOUT: 1000
+  TIMEOUT: 50
   #串口通信超时时间
   
-  RATE: 15
+  RATE: 10
   #通讯频率
 
 speed_limit:  #单位为m/s
   x: 1.5
-  y: 0.1
-  r: 2
+  y: 0.
+  r: 2.0

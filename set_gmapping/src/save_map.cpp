@@ -14,8 +14,8 @@ class MapGenerator
    *All rights reserved.
    */
   public:
-    MapGenerator(const string& mapname, const string& file_location, int threshold_occupied, int threshold_free)
-      : mapname_(mapname), file_location_(file_location), saved_map_(false), threshold_occupied_(threshold_occupied), threshold_free_(threshold_free)
+    MapGenerator(const string& mapname, int threshold_occupied, int threshold_free)
+      : mapname_(mapname), saved_map_(false), threshold_occupied_(threshold_occupied), threshold_free_(threshold_free)
     {
       ros::NodeHandle n;
       ROS_INFO("save_map:Waiting for the map");
@@ -29,11 +29,8 @@ class MapGenerator
                map->info.height,
                map->info.resolution);
 
-      //string mapdatafile = mapname_ + ".pgm";
-      string mapdatafile = "\\home\\map_f\\map.pgm";
-      string mapdata_location_name = file_location_ + mapname_ + ".pgm";
-      //ROS_INFO("save_map:Writing map occupancy data to %s", mapdatafile.c_str());
-      //ROS_INFO("The name and location of the map is: %s",mapdata_location_name.c_str());
+      string mapdatafile = mapname_ + ".pgm";
+      ROS_INFO("save_map:Writing map occupancy data to %s", mapdatafile.c_str());
       FILE* out = fopen(mapdatafile.c_str(), "w");	//只写方式打开文件
       if (!out)
       {
@@ -62,7 +59,6 @@ class MapGenerator
       fclose(out);
 
       string mapmetadatafile = mapname_ + ".yaml";
-      string mapmeta_location_name = file_location_ + mapname_ + ".yaml";
       ROS_INFO("save_map:Writing map occupancy data to %s", mapmetadatafile.c_str());
       FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
 
@@ -114,8 +110,7 @@ int main(int argc, char *argv[]){
     nh_sm.param("/save_map/rate",rate,1);
     nh_sm.param("/save_map/threshold_occupied",threshold_occupied,65);
     nh_sm.param("/save_map/threshold_free",threshold_free,25);
-    nh_sm.param<string>("/save_map/mapname",mapname,"map");
-    nh_sm.param<string>("/save_map/file_location",file_location,"~/Documents/");
+    nh_sm.param<string>("/save_map/mapname",mapname,"mapone");
 
     if (threshold_occupied <= threshold_free){
         ROS_ERROR("threshold_free must be smaller than threshold_occupied");
@@ -124,7 +119,7 @@ int main(int argc, char *argv[]){
 
     ros::Rate loop_rate(rate);
     while(ros::ok()){        
-        MapGenerator mg(mapname, file_location, threshold_occupied, threshold_free);
+        MapGenerator mg(mapname, threshold_occupied, threshold_free);
         while(!mg.saved_map_ && ros::ok())
             ros::spinOnce();
 

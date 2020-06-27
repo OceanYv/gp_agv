@@ -1,0 +1,53 @@
+DWAPlannerROS:
+
+  # Robot Configuration Parameters
+  acc_lim_x: 1.0          #最大加速度，默认2.5 m/s^2
+  acc_lim_y: 0.0          #默认2.5 m/s^2
+  acc_lim_theta: 2.0      #默认3.2 r/s^2(acc_lim_th)
+
+  max_trans_vel:  1.5    #最大平移速度绝对值(0.55m/s)
+  min_trans_vel:  0.1    #0.1
+
+  max_vel_x: 1.5        #默认0.55m/s
+  min_vel_x: -0.5        #0.0m/s
+  max_vel_y: 0.0        #0.1m/s
+  min_vel_y: 0.0        #-0.1m/s
+  max_rot_vel: 1.0      #1.0rad/s
+  min_rot_vel: -1.0     #0.4
+
+  # Goal Tolerance Parametes
+  yaw_goal_tolerance: 0.05   #偏航/旋转允许误差（0.05rad）
+  xy_goal_tolerance: 0.1    #x、y方向允许误差(0.1m)
+  latch_xy_goal_tolerance : true   #在到达位置后继续调整姿态到指定位姿，即使旋转后xy的误差会在允许范围之外（false）
+
+  # Forward Simulation Parameters
+  sim_time: 2.0       #前进轨迹模拟值(1.7s)
+  sim_granularity: 0.025    #在给定轨迹上的点之间采取的步长（0.025m）
+
+  vx_samples: 10      #探索x方向速度空间时候使用的采样数量(3)
+  vy_samples: 0       #(10)
+  vtheta_samples: 20  #(20)
+
+  controller_frequency: 20.0    #（20Hz）
+
+  # Trajectory Scoring Parameters（用于代价值计算）
+    # cost =
+    #   path_distance_bias * (distance to path from the endpoint of the trajectory in meters)
+    #   + goal_distance_bias * (distance to local goal from the endpoint of the trajectory in meters)
+    #   + occdist_scale * (maximum obstacle cost along the trajectory in obstacle cost (0-254))
+  path_distance_bias: 32.0  #控制器遵守预定路径的程度（32.0）
+  goal_distance_bias: 24.0  #尝试到达局部目标的程度(24.0)
+  occdist_scale: 0.1  #尝试避障的程度（0.01）
+
+  forward_point_distance: 0.325   #The distance from the center point of the robot to place an additional scoring point(0.325)
+  stop_time_buffer: 0.3           #碰撞之前必须停止的时间，大概就是指要提前多久开始停止才不会撞上（0.2s）
+  scaling_speed: 0.25             #开始收敛机器人轨迹的速度(0.25m/s)
+  max_scaling_factor: 0.2         #最大收敛因子(0.2)
+
+  publish_cost_grid: false        #是否发布用于路径规划的代价栅格图，若发布，则可以看到一个名为/cost_cloud的sensor_msgs/PointCloud2类型topic(false)
+
+  # Oscillation Prevention Parameters
+  oscillation_reset_dist: 0.05    #在震荡标志重置之前，机器人需要移动的距离(如果一直不被重置，即意味着机器人在比较长的意见时间内在一个小范围运动，即认为发生了震荡)（0.05m）
+
+  #Global Plan Parameters
+  prune_plan: true                #机器人将删除掉一米之前走过的路径(true)

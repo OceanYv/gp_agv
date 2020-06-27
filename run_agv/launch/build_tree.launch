@@ -1,0 +1,7 @@
+<launch>  
+
+<!--发布固定坐标转换-->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.24 0 0 0 0 0 base_footprint laser_link 50"/>          <!--频率为50Hz-->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_imu" args="0.1 0 0 0 0 0 base_footprint imu_link 50"/>
+
+</launch>

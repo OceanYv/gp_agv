@@ -210,12 +210,3 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-
-add_executable(tf_build
-  src/tf_build.cpp
-)
-add_dependencies(tf_build ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tf_build
-  ${catkin_LIBRARIES}
-)

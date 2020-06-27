@@ -44,7 +44,7 @@
     <param name="llsamplestep" value="0.01"/>       <!--用于似然计算的平移采样步长-->
     <param name="lasamplerange" value="0.005"/>     <!--用于似然计算的角度采样距离-->
     <param name="lasamplestep" value="0.005"/>      <!--用于似然计算的角度采样步长-->
-    <!--transform_publish_period (float, default: 0.05)，变换发布时间间隔-->
+    <param name="transform_publish_period" value="0.1"/>  <!--transform_publish_period (float, default: 0.05)，变换发布时间间隔-->
     <!--occ_thresh (float, default: 0.25)，栅格地图栅格值 (i.e., set to 100 in the resultingsensor_msgs/LaserScan)-->
     <!--maxRange (float)，传感器最大范围。如果在传感器距离范围内没有障碍物应该在地图上显示为自由空间。 maxUrange < 真实传感器最大距离范围 <= maxRange-->
     <remap from="scan" to="$(arg scan_topic)"/>

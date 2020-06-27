@@ -80,31 +80,35 @@
   ` $ rqt_graph `  
   查看参数服务器  
   ` $ rosparam list `  
-
-
-  2020.6.1程序调试  
-    roscore  
-    rqt_graph  
-    rosrun rqt_tf_tree rqt_tf_tree  
-    `打开遥控器和运动控制节点，进行运动控制的测试`  
-    roslaunch joy_control we_joy_control.launch		//打开遥控器  
-    roslaunch base_controller base_controller.launch	//打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息  
-    `发布激光雷达安装位置，运行激光雷达数据获取程序以及gmapping程序`  
-    roslaunch run_agv run_agv.launch				//发布激光雷达、IMU的安装位置  
-        设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1  
-        可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态  
-    roslaunch lslidar_n301_decoder lslidar_n301.launch --screen	//开始获取激光雷达数据  
-    roslaunch hwtimu hwtimusubexp.launch		//开始获取IMU数据  
-    roslaunch set_gmapping robot_gmapping.launch	//通过gmapping进行建图  
-    `打开rviz，查看激光雷达的数据，以及建图的结果`  
-    rosrun rviz rviz  					//通过rviz查看激光雷达的数据  
-    roslaunch set_gmapping save_map_my.launch  		//保存地图  
-    `运行move_base，进行导航`  
-    roslaunch set_gmapping move_base.launch  
   
-现在存在的问题:  
-	① 上位机与下位机的串口通信与通信协议有些问题，目前认为是下位机程序的问题  
-	② 激光雷达数据获取之后，在RVIZ中可视化时会出现tf有关的问题  
-	③ 数据融合的算法中存在一些明显的逻辑错误  
-	④move_base的配置还没有完成  
-	⑤save_map节点还存在一些问题  
+  
+*__建图方法__  
+    sudo chmod 777 /dev/ttyS4（串口号）                          //获取对应串口的使用权限  
+        sudo ls -l /dev/ttyS* 或者 sudo ls -l /dev/ttyUSB*        //查看串口使用情况  
+    roslaunch run_agv laser_slam_run.launch                    //功能：通过遥控小车运动来进行建图  
+        设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1    
+        可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态  
+    rosrun set_gmapping save_map                                //保存地图数据  
+        该节点需在用于保存地图文件的文件夹下运行，在set_gmapping/config/save_map.yaml中修改文件名  
+
+*__已知地图的自助导航（不需要遥控器）__  
+    sudo chmod 777 /dev/ttyS4（串口号）                          //获取对应串口的使用权限  
+        sudo ls -l /dev/ttyS* 或者 sudo ls -l /dev/ttyUSB*        //查看串口使用情况  
+    roscore
+    rosrun map_server map_server map_0625.yaml                  //载入地图
+        这一行要在地图路径下运行
+    roslaunch run_agv navigation_run.launch                    //功能：通过已经提供的地图来进行导航，在rviz中
+    roslaunch set_gmapping move_base.launch                    //进行自主导航
+
+ 
+现在存在的问题:    
+	1.数据融合的算法中存在一些明显的逻辑错误  
+    2.IMU串口打不开，应该是波特率的问题
+    3.单用里程计的时候定位精度比较差，最好使用激光雷达定位包，然后多传感器融合
+
+
+接下来的思路：
+    1.会用IMU，然后写一个节点来做IMU的数据积分
+    2.修改数据融合的代码
+    3.配置激光雷达定位
+        先运行激光雷达定位并发布odom-map转换，即确定初始位置，然后再打开自主导航节点

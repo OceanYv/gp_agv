@@ -1,22 +1,55 @@
 # move base配置相关的参数
+  #各种基本的控制发布参数、等待参数
+  #路径规划、代价地图、恢复行为（一共五个插件）
 
-controller_frequency: 5.0   #控制及速度发布频率，默认值20
+
+####### frequency & timeout #######
+controller_frequency: 10.0   #控制及速度发布频率，默认值20
 controller_patience: 3.0    #没有收到有效控制时的等待时间，默认15
 
-planner_frequency: 1.0
+planner_frequency: 2.0
 planner_patience: 5.0       #没有收到有效规划的等待时间，默认5
 
 oscillation_timeout: 10.0   #执行恢复行为之前允许震荡的时间，为0时意为无限长，默认0；
 oscillation_distance: 0.2   #默认0.5
 
-# local planner - default is trajectory rollout
-shutdown_costmaps: false
-base_local_planner: "dwa_local_planner/DWAPlannerROS" #局部规划器选择，默认base_local_planner/TrajectoryPlannerROS
-base_global_planner: "navfn/NavfnROS"             #全局规划器选择，alternatives: global_planner/GlobalPlanner, carrot_planner/CarrotPlanner，默认navfn/NavfnROS
 
-#We plan to integrate recovery behaviors for turtlebot but currently those belong to gopher and still have to be adapted.
-## recovery behaviors; we avoid spinning, but we need a fall-back replanning
-#recovery_behavior_enabled: true
+####### planner #######
+  #局部规划器，可选 
+  #  ①base_local_planner/TrajectoryPlannerROS（默认）      ：Trajectory Rollout算法
+  #  ②base_local_planner/DWA                              ：大概是这个名字吧？？？
+  #  ③dwa_local_planner/DWAPlannerROS                     ：base_local_planner中DWA算法的改进
+  #全局规划器，可选  
+  #  ①carrot_planner/CarrotPlanner  ： 简单的全局规划算法
+  #  ②navfn/NavfnROS(默认)          ：实现了Dijkstra、A*
+  #  ③global_planner/GlobalPlanner ： navfn的改进，实现了D、A*
+shutdown_costmaps: false                              #决定在move_base非活跃时，是否关闭代价地图，默认false
+zhe: "dwa_local_planner/DWAPlannerROS" #局部规划器
+base_global_planner: "navfn/NavfnROS"                 #全局规划器
+
+
+####### costmap #######
+  #该插件已经选好无法修改
+  #  ①costmap_2d(默认)      ：二维代价地图
+  #    该插件提供了不同的layer供我们设置
+  #
+  #  costmap的layer包括四种：
+  #    Static Map Layer： 静态地图层， 通常都是SLAM建立完成的静态地图；
+  #    Obstacle Map Layer： 障碍地图层， 用于动态的记录传感器感知到的障碍物信息；
+  #    Inflation Layer： 膨胀层， 在以上两层地图上进行膨胀；
+  #    自定义插件层；
+
+
+####### recovery #######
+  #恢复行为方法，可选：
+  #  clear_costmap_recovery/ClearCostmapRecovery  ：清除代价地图的恢复行为
+  #  ②rotate_recovery         ：旋转的恢复行为
+  #  ③move_slow_and_clear     ：缓慢移动的恢复行为
+
+recovery_behavior_enabled: true   #是否尝试恢复行为，默认true
+conservative_reset_dist: 3.0 #尝试清除地图中的障碍物时，在此范围内的障碍物将会被清除（米），仅在使用默认recovery_behaviors时被调用，默认3.0
+clearing_rotation_allowed: true #是否在清理空间时旋转机器人，仅在默认recovery_behaviors时被调用，默认true
+max_planning_retries: -1     #执行恢复行为之前允许多少次重新规划，-1指允许无限次，默认-1
 
 #recovery_behaviors:          #恢复决策方式
   #- name: 'super_conservative_reset1'
@@ -36,9 +69,14 @@ base_global_planner: "navfn/NavfnROS"             #全局规划器选择，alter
   #- name: 'clearing_rotation2'
     #type: 'rotate_recovery/RotateRecovery'
 
-#conservative_reset_dist: 3.0 #尝试清除地图中的障碍物时，在此范围内的障碍物将会被清除（米），该参数仅仅在使用默认recovery_behaviors时被调用，默认3.0
-#clearing_rotation_allowed: true #是否在清理空间时旋转机器人，仅在默认recovery_behaviors时被调用，默认true
-#max_planning_retries: -1     #执行恢复行为之前允许多少次重新规划，-1指允许无限次，默认-1
+  #下面是recovery_behaviors的默认值
+#  name: "conservative_reset"
+#  type: "clear_costmap_recovery/ClearCostmapRecovery"
+#  name: "rotate_recovery"
+#  type: "rotate_recovery/RotateRecovery"
+#  name: "aggressive_reset"
+#  type: "clear_costmap_recovery/ClearCostmapRecovery"
+
 
 #super_conservative_reset1:
   #reset_distance: 3.0

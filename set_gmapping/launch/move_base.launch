@@ -3,28 +3,33 @@
 -->
 <launch>
   
-  <arg name="odom_frame_id"   default="odom"/>
+<arg name="odom_frame_id"   default="odom"/>
   <arg name="base_frame_id"   default="base_footprint"/>
   <arg name="global_frame_id" default="map"/>
   <arg name="odom_topic" default="odom" />
   <arg name="laser_topic" default="scan" />
   <arg name="vel_topic" default="cmd_vel" />
 
-  <node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" 
-      args="0 0 0 0 0 0 map odom 20" />
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">  
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <!--一些yaml文件的读取-->
-    <rosparam file="$(find set_gmapping)/config/move_base_params.yaml" command="load" />   <!--最近基本的一些配置-->
-
-<!--    <rosparam file="$(find set_gmapping)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />  全局代价地图参数配置
-    <rosparam file="$(find set_gmapping)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />       局部代价地图参数配置
-    <rosparam file="$(find set_gmapping)/config/local_costmap_params.yaml" command="load" />                           局部代价地图参数
-    <rosparam file="$(find set_gmapping)/config/global_costmap_params.yaml" command="load" />                          全局代价地图参数
-    <rosparam file="$(find set_gmapping)/config/dwa_local_planner_params.yaml" command="load" />                       dwa局部规划
-    <rosparam file="$(find set_gmapping)/config/global_planner_params.yaml" command="load" />                          全局规划
-    <rosparam file="$(find set_gmapping)/config/navfn_global_planner_params.yaml" command="load" />                    navfn全局规划
+    <!--配置：
+        move_base_params：基本的move_base配置文件，主要是插件选择、一些控制频率与等待时间
+        costmap_common_params：公用代价地图参数(分别加载到两个命名空间中)
+        global_costmap_params：全局代价地图参数
+        local_costmap_params ：局部代价地图参数
+        dwa_local_planner_params：局部DWA路径规划参数，用于配置dwa_local_planner/DWAPlannerROS插件
+        global_planner_params：全局路径规划参数
+        navfn_global_planner_params：全局路径规划参数（这个大概不要也可以？）
     -->
+    <rosparam file="$(find set_gmapping)/config/move_base_params.yaml" command="load" />                                <!--最基本的一些配置-->
+    <rosparam file="$(find set_gmapping)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />       <!--全局代价地图参数配置,ns是命名空间-->
+    <rosparam file="$(find set_gmapping)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />        <!--局部代价地图参数配置-->
+    <rosparam file="$(find set_gmapping)/config/local_costmap_params.yaml" command="load" />                            <!--局部代价地图参数-->
+    <rosparam file="$(find set_gmapping)/config/global_costmap_params.yaml" command="load" />                           <!--全局代价地图参数-->
+    <rosparam file="$(find set_gmapping)/config/dwa_local_planner_params.yaml" command="load" />                        <!--dwa局部规划-->
+    <rosparam file="$(find set_gmapping)/config/global_planner_params.yaml" command="load" />                           <!--全局规划-->
+    <rosparam file="$(find set_gmapping)/config/navfn_global_planner_params.yaml" command="load" />                     <!--navfn全局规划-->
     
     <!-- 下面这几行就不用动了，一些remap和参数设置-->
     <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
