@@ -1,8 +1,16 @@
 <launch>  
-    <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 50"/>          <!--频率为10Hz-->
-    <include file="$(find run_agv)/launch/build_tree.launch"/>                      <!--发布激光雷达、IMU的安装位置-->
-    <include file="$(find base_controller)/launch/base_controller.launch"/>         <!--打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息-->
+    <arg name="map_file" default="$(find set_gmapping)/maps/map_0625.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />    <!--载入已有地图-->
+
+    <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 50"/>          <!--发布机器人初始位置，之后可以通过激光雷达定位来获得全局位姿-->
+    <include file="$(find run_agv)/launch/build_tree.launch"/>                                                    <!--发布激光雷达、IMU的安装位置-->
+
+    <include file="$(find joy_control)/launch/we_joy_control.launch"/>              <!--打开遥控器-->
+    <include file="$(find base_controller)/launch/base_controller.launch">         <!--打开底盘控制节点，可以通过遥控器实现运动控制，并获取里程计信息-->
+        <arg name="pub_odom" value="0"/>
+    </include>
     <include file="$(find lslidar_n301_decoder)/launch/lslidar_n301.launch"/>       <!--打开激光雷达数据接收节点-->
-    <!--<include file="$(find hwtimu)/launch/hwtimusubexp.launch"/>-->              <!--打开IMU据接收节点-->
+    <include file="$(find hwtimu)/launch/hwtimusubexp.launch"/>                     <!--打开IMU据接收节点-->
+    <include file="$(find set_gmapping)/launch/robot_amcl.launch"/>                 <!--打开amcl定位节点-->
     <include file="$(find run_agv)/launch/rviz_navi.launch"/>                       <!--打开可视化-->
 </launch>

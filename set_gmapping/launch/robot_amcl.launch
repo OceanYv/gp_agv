@@ -1,0 +1,58 @@
+<launch>
+
+  <node pkg="amcl" type="amcl" name="amcl">
+    <!--滤波器相关-->
+    <param name="min_particles" value="500"/>   <!--最小粒子数,100-->
+    <param name="max_particles" value="5000"/>  <!--最大粒子数，5000-->
+    <param name="kld_err"                   value="0.02"/>    <!--最大允许误差，0.01-->
+    <param name="kld_z"                     value="0.99"/>    <!--Upper standard normal quantile for (1 - p), where p is the probability that the error on the estimated distrubition will be less than kld_err，0.99-->
+    <param name="update_min_d"              value="0.1"/>     <!--两次滤波器更新之间平移的距离，0.2m-->
+    <param name="update_min_a"              value="0.2"/>     <!--两次滤波器更新之间旋转的弧度，pi/6 rad-->
+    <param name="resample_interval"         value="2"/>       <!--两次采样之间滤波器更新的次数，2-->
+    <param name="transform_tolerance"       value="1.0"/>     <!--Time with which to post-date the transform that is published, to indicate that this transform is valid into the future. 0.1s-->
+    <param name="recovery_alpha_slow"       value="0.0"/>     <!--滤波器指数衰减速率，用于决定何时通过添加随机位姿进行恢复，默认0，可以设置为0.001-->
+    <param name="recovery_alpha_fast"       value="0.0"/>     <!--可设置为0.1-->
+
+<!--    <param name="initial_pose_x"            value="0"/>
+    <param name="initial_pose_y"            value="0"/>
+    <param name="initial_pose_a"            value="0"/>
+    <param name="initial_cov_xx"            value="0.5*0.5"/>
+    <param name="initial_cov_yy"            value="0.5*0.5"/>
+    <param name="initial_cov_a"            value="(pi/12)*(pi/12)"/>-->
+
+    <param name="gui_publish_rate"          value="1.0"/>     <!--扫描数据和路径可视化的最大速率，默认-1.0Hz表示禁止-->
+    <param name="save_pose_rate"            value="0.5"/>     <!--保存位姿(位姿+方差)的速率， 保存的位姿用于不断初始化滤波器,0.5Hz-->
+    <param name="use_map_topic"             value="false"/>   <!--为true时，amcl注册到map这个topic上来接收地图，false-->
+    <param name="first_map_only"            value="false"/>   <!--为true时，amcl使用固定的初始地图，false-->
+
+    <!--激光了模型相关参数-->
+    <param name="laser_min_range"           value="-1.0"/>    <!--最小扫描距离-->
+    <param name="laser_max_range"           value="-1.0"/>    <!--最大扫描距离-->
+    <param name="laser_max_beams"           value="1000"/>    <!--均分扫描激光束数目-->
+    <param name="laser_z_hit"               value="0.95"/>     <!--z_hit部分的混合权重-->
+    <param name="laser_z_short"             value="0.1"/>    <!--z_short部分的混合权重-->
+    <param name="laser_z_max"               value="0.05"/>
+    <param name="laser_z_rand"              value="0.05"/>
+    <param name="laser_sigma_hit"           value="0.2"/>
+    <param name="laser_lambda_short"        value="0.1"/>
+    <param name="laser_model_type"          value="likelihood_field"/>
+    <param name="laser_likelihood_max_dist" value="0.5"/>     <!--对障碍物进行膨胀操作的最大距离,2m-->   
+
+    <!--里程计模型相关-->
+    <param name="odom_model_type"           value="diff"/>
+    <param name="odom_alpha1"               value="0.2"/>   <!--从运动旋转分量估计出的旋转量的估计噪声-->
+    <param name="odom_alpha2"               value="0.2"/>   <!--从运动平移分量估计出的旋转量的估计噪声-->
+    <param name="odom_alpha3"               value="0.2"/>   <!--从运动平移分量估计出的平移量的估计噪声-->
+    <param name="odom_alpha4"               value="0.2"/>   <!--从运动旋转分量估计出的平移量的估计噪声-->
+    <param name="odom_alpha5"               value="0.1"/>   <!--平移相关噪声参数-->
+    
+    <param name="odom_frame_id"             value="odom"/> 
+    <param name="base_frame_id"             value="base_footprint"/> 
+    <param name="global_frame_id"           value="map"/>
+    <param name="tf_broadcast"              value="true"/>
+  </node>
+
+  <node pkg="set_gmapping" type="acml_global_init" name="acml_global_init" output="screen"/>
+
+
+</launch>

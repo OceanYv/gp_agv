@@ -16,6 +16,9 @@ using std::string;
 #define CMD_SPEEDSET 0x01        //速度控制指令
 #define CMD_ODOMREQUEST 0x02        //请求下位机数据指令
 #define PI 3.141593
+#define SMO_K 0.2                 //运动平滑控制系数
+#define SMO_LIM_V 0.05            //速度平滑减速阈值(m/s)
+#define SMO_LIM_W 0.1            //角速度平滑减速阈值(rad/s)
 double x_lim,y_lim,r_lim;
 
 //串口数据收发变量
@@ -36,19 +39,30 @@ short uint8_to_short( uint8_t *b )      //调用的是这个函数
 }
 
 //回调函数，发送线速度、角速度
+double x = 0, y = 0, r = 0;
 void Callback(const geometry_msgs::Twist &cmd_input){
-    double x,y,r;
-    x = cmd_input.linear.x;
-    y = cmd_input.linear.y;
-    r = cmd_input.angular.z;
-    if(fabs(x) > x_lim)
-        x = x > 0 ? x_lim : -x_lim;
+    //获取vel数据
+    double x_r,y_r,r_r;
+    x_r = cmd_input.linear.x;
+    y_r = cmd_input.linear.y;
+    r_r = cmd_input.angular.z;
+    if(fabs(x_r) > x_lim)
+        x_r = x_r > 0 ? x_lim : -x_lim;
     if(fabs(y) > y_lim)
-        y = y > 0 ? y_lim : -y_lim;
-    if(fabs(r) > r_lim)
-        r = r > 0 ? r_lim : -r_lim;
+        y_r = y_r > 0 ? y_lim : -y_lim;
+    if(fabs(r_r) > r_lim)
+        r_r = r_r > 0 ? r_lim : -r_lim;
 
-    char velx, vely,velr;
+    //速度平滑化
+    x = SMO_K * (x_r - x) + x;
+    if((fabs(x) < SMO_LIM_V) && ((fabs(x_r) - fabs(x))<0)) x = 0;
+    y = SMO_K * (y_r - y) + y;
+    if((fabs(y) < SMO_LIM_V) && ((fabs(y_r) - fabs(y))<0)) y = 0;
+    r = SMO_K * (r_r - r) + r;
+    if((fabs(r) < SMO_LIM_W) && ((fabs(r_r) - fabs(r))<0)) r = 0;
+
+    //单位转换、数组填充与发送
+    char velx, vely, velr;
     velx = (char)(x * 100);         //m转化为cm
     vely = (char)(y * 100);
     velr = (char)(r * 180 / PI) / 2.0;  //rad转化为°
@@ -68,7 +82,7 @@ void Callback(const geometry_msgs::Twist &cmd_input){
 
     //串口发送
     if(sp.write(send_buffer,12) != 12)
-        ROS_ERROR("vel_cmd sent failed");
+        ROS_ERROR("velcmd sent failed");
 }
 
 //向下位机请求里程计数据
@@ -93,12 +107,12 @@ void Odom_request(void){
 }
 
 int main(int argc, char *argv[]){
-    ros::init(argc, argv, "base_controller");
+    ros::init(argc, argv, "base_controller_acc");
     ros::NodeHandle nh;
     
 //串口通信配置
     string serial_stm;
-    int baud_stm,timeout,pub_odom;
+    int baud_stm,timeout;
     nh.param<std::string>("/serial_congif/SERIAL_STM",serial_stm,"ttyUSB0");
     nh.param("/serial_congif/BAUD_STM",baud_stm,9600);
     nh.param("/serial_congif/TIMEOUT",timeout,1000);
@@ -106,9 +120,6 @@ int main(int argc, char *argv[]){
     nh.param("/speed_limit/x",x_lim,1.5);
     nh.param("/speed_limit/y",y_lim,0.0);
     nh.param("/speed_limit/r",r_lim,1.0);
-    nh.param("/speed_limit/r",r_lim,1.0);
-    nh.param("/base_controller/pub_odom",pub_odom,1);
-    /*nh.param("/speed_limit/r",r_lim,1.0);*/
 
     serial::Timeout to = serial::Timeout::simpleTimeout(timeout);   //串口通信超时时间
     sp.setPort(serial_stm);
@@ -126,12 +137,7 @@ int main(int argc, char *argv[]){
         return -1;
 //定义发布、接收
     ros::Subscriber sub = nh.subscribe("cmd_vel",2, Callback);
-    ros::Publisher odom_pub;
-    if(pub_odom==1)
-        odom_pub= nh.advertise<nav_msgs::Odometry>("odom", 2);   //发布里程计信息
-    else
-        odom_pub= nh.advertise<nav_msgs::Odometry>("odom_stm32", 2);   //发布来自stm32的里程计信息，但是不作为odom数据
-
+    ros::Publisher odom_pub= nh.advertise<nav_msgs::Odometry>("odom", 2);   //发布里程计信息
     static tf::TransformBroadcaster odom_bc;    //发布tf_tree
 //定义变量
     int rate;
@@ -206,21 +212,14 @@ int main(int argc, char *argv[]){
           //现在要用自己写的数据融合程序来发布这个tf变换，所以把这几行注释掉了  
             //发布tf坐标变化
             odom_tf.header.stamp = ros::Time::now(); 
-            if(pub_odom==1)
-                odom_tf.header.frame_id = "odom";
-            else
-                odom_tf.header.frame_id = "odom_stm32";
+            odom_tf.header.frame_id = "odom";
             odom_tf.child_frame_id = "base_footprint";
             odom_tf.transform.translation = odom_point_tf;
             odom_tf.transform.rotation = odom_quat;        
             odom_bc.sendTransform(odom_tf);
-
             //发布里程计信息
             odom_inf.header.stamp = odom_tf.header.stamp; 
-            if(pub_odom==1)
-                odom_inf.header.frame_id = "odom";  //位置是在odom坐标系下的
-            else
-                odom_inf.header.frame_id = "odom_stm32";
+            odom_inf.header.frame_id = "odom";  //位置是在odom坐标系下的
             odom_inf.child_frame_id = "base_footprint"; //速度是在odom坐标系下的
             odom_inf.pose.pose.position= odom_point;
             odom_inf.pose.pose.orientation = odom_quat;       

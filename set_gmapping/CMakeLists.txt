@@ -212,3 +212,11 @@ add_dependencies(save_map ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_
 target_link_libraries(save_map
   ${catkin_LIBRARIES}
 )
+
+add_executable(acml_global_init
+  src/acml_global_init.cpp
+)
+add_dependencies(acml_global_init ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(acml_global_init
+  ${catkin_LIBRARIES}
+)

@@ -257,3 +257,12 @@ add_dependencies(sensor_fusion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPO
 target_link_libraries(sensor_fusion Sensorfusion
   ${catkin_LIBRARIES}
 )
+
+
+add_executable(base_controller_acc
+  src/base_controller_acc.cpp
+)
+add_dependencies(base_controller_acc ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(base_controller_acc
+  ${catkin_LIBRARIES}
+)

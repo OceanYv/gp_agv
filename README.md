@@ -91,16 +91,15 @@
     rosrun set_gmapping save_map                                //保存地图数据  
         该节点需在用于保存地图文件的文件夹下运行，在set_gmapping/config/save_map.yaml中修改文件名  
 
-*__已知地图的自助导航（不需要遥控器）__  
+*__已知地图的自主导航__  
     sudo chmod 777 /dev/ttyS4（串口号）                          //获取对应串口的使用权限  
-        sudo ls -l /dev/ttyS* 或者 sudo ls -l /dev/ttyUSB*        //查看串口使用情况  
-    roscore
-    rosrun map_server map_server map_0625.yaml                  //载入地图
-        这一行要在地图路径下运行
+        * sudo ls -l /dev/ttyS* 或者 sudo ls -l /dev/ttyUSB*        //查看串口使用情况  
     roslaunch run_agv navigation_run.launch                    //功能：通过已经提供的地图来进行导航，在rviz中
+        * 修改map_file的值以改变要载入的地图
     roslaunch set_gmapping move_base.launch                    //进行自主导航
-
+        * 可以在rviz中指定导航目的地
  
+
 现在存在的问题:    
 	1.数据融合的算法中存在一些明显的逻辑错误  
     2.IMU串口打不开，应该是波特率的问题
