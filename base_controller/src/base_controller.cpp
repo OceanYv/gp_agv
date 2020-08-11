@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
     nh.param("/speed_limit/y",y_lim,0.0);
     nh.param("/speed_limit/r",r_lim,1.0);
     nh.param("/speed_limit/r",r_lim,1.0);
-    nh.param("/base_controller/pub_odom",pub_odom,1);
+    nh.param("/pub_odom",pub_odom,1);
     /*nh.param("/speed_limit/r",r_lim,1.0);*/
 
     serial::Timeout to = serial::Timeout::simpleTimeout(timeout);   //串口通信超时时间

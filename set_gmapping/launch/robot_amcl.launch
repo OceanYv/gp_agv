@@ -10,8 +10,8 @@
     <param name="update_min_a"              value="0.2"/>     <!--两次滤波器更新之间旋转的弧度，pi/6 rad-->
     <param name="resample_interval"         value="2"/>       <!--两次采样之间滤波器更新的次数，2-->
     <param name="transform_tolerance"       value="1.0"/>     <!--Time with which to post-date the transform that is published, to indicate that this transform is valid into the future. 0.1s-->
-    <param name="recovery_alpha_slow"       value="0.0"/>     <!--滤波器指数衰减速率，用于决定何时通过添加随机位姿进行恢复，默认0，可以设置为0.001-->
-    <param name="recovery_alpha_fast"       value="0.0"/>     <!--可设置为0.1-->
+    <param name="recovery_alpha_slow"       value="0.001"/>     <!--滤波器指数衰减速率，用于决定何时通过添加随机位姿进行恢复，默认0，可以设置为0.001-->
+    <param name="recovery_alpha_fast"       value="0.1"/>     <!--可设置为0.1-->
 
 <!--    <param name="initial_pose_x"            value="0"/>
     <param name="initial_pose_y"            value="0"/>
@@ -25,7 +25,7 @@
     <param name="use_map_topic"             value="false"/>   <!--为true时，amcl注册到map这个topic上来接收地图，false-->
     <param name="first_map_only"            value="false"/>   <!--为true时，amcl使用固定的初始地图，false-->
 
-    <!--激光了模型相关参数-->
+    <!--激光雷达模型相关参数-->
     <param name="laser_min_range"           value="-1.0"/>    <!--最小扫描距离-->
     <param name="laser_max_range"           value="-1.0"/>    <!--最大扫描距离-->
     <param name="laser_max_beams"           value="1000"/>    <!--均分扫描激光束数目-->

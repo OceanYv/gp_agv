@@ -88,26 +88,35 @@
     roslaunch run_agv laser_slam_run.launch                    //功能：通过遥控小车运动来进行建图  
         设置激光雷达IP：192.168.1.125  255.255.255.0  192.168.1.1    
         可通过ping 192.168.1.222 或者ifconfig或者sudo tcpdump -n -i enp0s31f6来检查连接状态  
-    rosrun set_gmapping save_map                                //保存地图数据  
-        该节点需在用于保存地图文件的文件夹下运行，在set_gmapping/config/save_map.yaml中修改文件名  
+    roslaunch set_gmapping save_map_my.launch                                //保存地图数据  
+        在运行该launch文件前，先在set_gmapping/config/save_map.yaml中修改文件名  
 
 *__已知地图的自主导航__  
     sudo chmod 777 /dev/ttyS4（串口号）                          //获取对应串口的使用权限  
         * sudo ls -l /dev/ttyS* 或者 sudo ls -l /dev/ttyUSB*        //查看串口使用情况  
     roslaunch run_agv navigation_run.launch                    //功能：通过已经提供的地图来进行导航，在rviz中
-        * 修改map_file的值以改变要载入的地图
+        * 修改map_file的值以改变要载入的地图  
+    //rosrun set_gmapping acml_global_init  
     roslaunch set_gmapping move_base.launch                    //进行自主导航
         * 可以在rviz中指定导航目的地
  
+7.1代码调试
+    ①新增加一个参数的base_controller节点调试
+        1)  sudo chmod 777 /dev/ttyS4
+            sudo chmod 777 /dev/ttyUSB0
+            roslaunch run_agv laser_slam_run.launch
+
+            rosrun base_controller imu_pre_inte
+            rostopic echo odom_imu
+            在rviz中查看odom_imu的数据结果
+
+            rosrun set_gmapping save_map
+                在指定路径下运行，且运行之前修改名字为map0701
+
+        2)  在非原点启动导航程序
+            roslaunch run_agv navigation_run.launch
+                在rviz中查看amcl_pose的定位结果
+
 
 现在存在的问题:    
-	1.数据融合的算法中存在一些明显的逻辑错误  
-    2.IMU串口打不开，应该是波特率的问题
-    3.单用里程计的时候定位精度比较差，最好使用激光雷达定位包，然后多传感器融合
-
-
-接下来的思路：
-    1.会用IMU，然后写一个节点来做IMU的数据积分
-    2.修改数据融合的代码
-    3.配置激光雷达定位
-        先运行激光雷达定位并发布odom-map转换，即确定初始位置，然后再打开自主导航节点
+	1.数据融合的算法中存在一些明显的逻辑错误,计划在进一步巩固数学基础之后再全盘进行重新编写  

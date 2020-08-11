@@ -1,8 +1,8 @@
 <launch>  
-    <arg name="map_file" default="$(find set_gmapping)/maps/map_0625.yaml"/>
+    <arg name="map_file" default="$(find set_gmapping)/maps/map_0701.yaml"/>
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />    <!--载入已有地图-->
 
-    <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 50"/>          <!--发布机器人初始位置，之后可以通过激光雷达定位来获得全局位姿-->
+    <!--<node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 50"/>-->          <!--发布机器人初始位置，之后可以通过激光雷达定位来获得全局位姿-->
     <include file="$(find run_agv)/launch/build_tree.launch"/>                                                    <!--发布激光雷达、IMU的安装位置-->
 
     <include file="$(find joy_control)/launch/we_joy_control.launch"/>              <!--打开遥控器-->

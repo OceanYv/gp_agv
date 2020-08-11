@@ -1,3 +1,4 @@
+<!--该文件目前无用-->
 <launch>
   <rosparam command="load" file="$(find base_controller)/config/sensor_fusion.yaml"/>
   <node pkg="base_controller" type="sensor_fusion" name="sensor_fusion" output="screen"/>

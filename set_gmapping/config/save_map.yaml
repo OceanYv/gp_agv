@@ -1,5 +1,5 @@
 save_map:
   threshold_occupied: 65  #大于等于此值的栅格为占用
   threshold_free: 25  #小于等于此值的栅格为空闲，须有关系0 <= threshold_free < threshold_occupied < 255
-  mapname: map_0625 #地图名称
+  mapname: /home/niren/catkin_yhy/src/gp_agv/set_gmapping/maps/mapname_0730_1 #地图名称
   rate: 1 #地图文件更新频率

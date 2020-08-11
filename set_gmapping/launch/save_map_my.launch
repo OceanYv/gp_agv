@@ -1,5 +1,6 @@
 <launch>
 
     <rosparam command="load" file="$(find set_gmapping)/config/save_map.yaml"/>
+    <node name="save_map" pkg="set_gmapping" type="save_map" output="screen"/>
 
 </launch>

@@ -16,5 +16,5 @@ serial_congif:
 
 speed_limit:  #单位为m/s
   x: 1.5
-  y: 0.
+  y: 0.0
   r: 2.0

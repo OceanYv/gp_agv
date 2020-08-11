@@ -1,7 +1,7 @@
 # 机器人形状
 max_obstacle_height: 1.0  # 机器人高度
 #robot_radius: 0.25  # 若为圆形，则为机器人半径
-footprint: [[0.3, 0.4], [0.3, -0.4],[-0.3, -0.4] ,[-0.3, 0.4]]
+footprint: [[0.333, 0.25], [0.333, -0.25], [-0.333, -0.25],[-0.333, 0.25]]
 
 map_type: voxel
 
@@ -26,13 +26,13 @@ obstacles:
     topic: scan
     marking: true     #是否用传感器实时信息添加代价地图障碍物信息
     clearing: true    #是否用传感器实时信息清除代价地图障碍物信息
-    min_obstacle_height: 0.1
+    min_obstacle_height: 0.0
     max_obstacle_height: 0.3
 
 inflation_layer:
   enabled:              true
-  cost_scaling_factor:  3.0  # 障碍物成本下降的指数速率 (default: 10)
-  inflation_radius:     1.0  # 在此离障碍物此距离内，会计算路径成本
+  cost_scaling_factor:  10.0  # 障碍物成本下降的指数速率 (default: 10)
+  inflation_radius:     0.1  # 在此离障碍物此距离内，会计算路径成本
 
 static_layer:
   enabled:              true

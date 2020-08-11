@@ -110,7 +110,9 @@ int main(int argc, char *argv[]){
     nh_sm.param("/save_map/rate",rate,1);
     nh_sm.param("/save_map/threshold_occupied",threshold_occupied,65);
     nh_sm.param("/save_map/threshold_free",threshold_free,25);
-    nh_sm.param<string>("/save_map/mapname",mapname,"mapone");
+    nh_sm.param<string>("/save_map/mapname",mapname,"mapname_1234");
+    //nh_sm.param<string>("/save_map/path",file_location,"/home/niren/catkin_yhy/src/set_gmapping/maps/");
+    //mapname = file_location + mapname;
 
     if (threshold_occupied <= threshold_free){
         ROS_ERROR("threshold_free must be smaller than threshold_occupied");
